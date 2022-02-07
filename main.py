@@ -1,19 +1,29 @@
 from random import choice
 
-board = list(range(1,101))
+board = list(range(1, 101))
 free_cells = list(range(1,101))
 
-
+#генерация матрицы
+def generation_matrix(board):
+    matrix = [list(board[:10])]
+    for i in range(1, 10):
+        matrix.append(board[10 * i:10 + 10 * i])
+    return matrix
 #построение игрового поля
 def draw_board(board):
-    print("-" * 47)
-    print(*board[:10], sep="  | ")
-    print("-" * 47)
-
-    for i in range(1,10):
-        print(*board[10 * i:10 + 10*i], sep=" | ")
-        print("-" * 47)
-
+    matrix = generation_matrix(board)
+    print("-" * 50)
+    for i in range(10):
+        for j in range(10):
+            if str(matrix[i][j]) == "X":
+                print("|", "\033[1;31m X \033[0m", end='')
+            elif str(matrix[i][j]) == "O":
+                print("|", "\033[32m O \033[0m", end='')
+            else:
+                print("|", str(matrix[i][j]).ljust(3), end='')
+        print()
+        print("-" * 50)
+    print("\n" * 2)
 
 #функция выбора игровой роли человека: крестик или нолик
 def player_choice():
@@ -50,7 +60,7 @@ def take_input(player_token):
                 print("Эта клеточка уже занята")
 
         else:
-            print("Некорректный ввод. Введите число от 1 до 9 чтобы походить.")
+            print("Некорректный ввод. Введите число от 1 до 100 чтобы походить.")
 
 
 #выбор ячейки для компьютера
@@ -66,19 +76,16 @@ def check_entry(arr):
     for j in arr:
         string += str(j)
 
-    if "X " * 5 in string:
-        return "O"
-
-    elif "O " * 5 in string:
+    if "X" * 5 in string:
         return "X"
+
+    elif "O" * 5 in string:
+        return "O"
 
 
 #проверка выигрыша
 def check_win(board):
-    matrix = [board[0:10]]
-
-    for i in range(1, 10):
-        matrix.append(board[10 * i:10 + 10 * i])
+    matrix = generation_matrix(board)
 
     #проверка горизонталей
     for i in matrix:
@@ -119,19 +126,14 @@ def check_win(board):
 
 
 #основная функция игры
-def main(board):
+def main(matrix):
     counter = 0
     win = False
-    player = player_choice()
-
-    if player == "X":
-        player = "X "
-        computer = "O "
-    else:
-        computer = "X "
+    player = "X"
+    computer = "O"
 
     while not win:
-        draw_board(board)
+        draw_board(matrix)
 
         if counter % 2 == 0:
             take_input(player)
@@ -143,8 +145,14 @@ def main(board):
         if counter > 8:
             tmp = check_win(board)
 
-            if tmp:
-                print(tmp, "выиграл!")
+            if tmp == "X":
+                draw_board(matrix)
+                print("\033[1;31m Компьютер выиграл! \033[0m")
+                win = True
+                break
+            elif tmp == "O":
+                draw_board(matrix)
+                print("\033[1;31m Вы выиграли! \033[0m")
                 win = True
                 break
 
@@ -152,7 +160,6 @@ def main(board):
             print("Ничья!")
             break
 
-    draw_board(board)
 
 main(board)
 
